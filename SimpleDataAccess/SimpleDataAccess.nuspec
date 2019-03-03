@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>$id$</id>
-    <version>$version$</version>
-    <title>$title$</title>
-    <authors>$author$</authors>
-    <owners>$author$</owners>
+    <id>SimpleDataAccess</id>
+    <version>1</version>
+    <title>Simple Data Access</title>
+    <authors>Emre MUMCU</authors>
+    <owners>Emre MUMCU mumcu.net</owners>
     <licenseUrl>http://mumcu.net</licenseUrl>
     <projectUrl>http://mumcu.net</projectUrl>
     <iconUrl>http://mumcu.net</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>$description$</description>
+    <description>Simple Data Access Layer</description>
     <releaseNotes>Initial Release.</releaseNotes>
     <copyright>Copyright 2019 Emre MUMCU</copyright>
     <tags>Simple DataAccess Layer</tags>

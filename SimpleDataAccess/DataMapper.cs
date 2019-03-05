@@ -11,41 +11,36 @@ namespace SimpleDataAccess
 {
     public class DataMapper<T> where T : class, new()
     {
-        private static void Parser(PropertyInfo prop, object entity, object value)
+        private static void Parser(PropertyInfo pi, object entity, object value)
         {
-            if (prop.PropertyType == typeof(string))
+            if (pi.PropertyType == typeof(string))
             {
-                prop.SetValue(entity, value.ToString().Trim(), null);
+                pi.SetValue(entity, value.ToString().Trim(), null);
             }
-            else if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(int?))
+            else if (pi.PropertyType == typeof(int) || pi.PropertyType == typeof(int?))
             {
                 if (value == null)
                 {
-                    prop.SetValue(entity, null, null);
+                    pi.SetValue(entity, null, null);
                 }
                 else
                 {
-                    prop.SetValue(entity, int.Parse(value.ToString()), null);
+                    pi.SetValue(entity, int.Parse(value.ToString()), null);
                 }
             }
         }
 
         public T Map(DataRow row)
         {
-            List<string> columnNames = row.Table.Columns
-                                       .Cast<DataColumn>()
-                                       .Select(c => c.ColumnName)
-                                       .ToList();
+            List<string> columnNames = row.Table.Columns.Cast<DataColumn>().Select(c => c.ColumnName).ToList();
 
-            List<PropertyInfo> properties = (typeof(T)).GetProperties()
-                                              .Where(x => x.GetCustomAttributes(typeof(Column), true).Any())
-                                              .ToList();
+            List<PropertyInfo> properties = (typeof(T)).GetProperties().Where(x => x.GetCustomAttributes(typeof(Column), true).Any()).ToList();
 
             T entity = new T();
 
-            foreach (var prop in properties)
+            foreach (PropertyInfo pi in properties)
             {           
-                Parser(prop, entity, row[prop.Name]);
+                Parser(pi, entity, row[pi.Name]);
             }
 
             return entity;
@@ -55,10 +50,7 @@ namespace SimpleDataAccess
         {
             var columnNames = table.Columns.Cast<DataColumn>().Select(x => x.ColumnName).ToList();
 
-            var properties = (typeof(T)).GetProperties()
-                                                .Where(x => x.GetCustomAttributes(typeof(Column), true).Any())
-                                                .ToList();
-
+            var properties = (typeof(T)).GetProperties().Where(x => x.GetCustomAttributes(typeof(Column), true).Any()).ToList();
 
             List<T> entities = new List<T>();
 
@@ -66,9 +58,9 @@ namespace SimpleDataAccess
             {
                 T entity = new T();
 
-                foreach (var prop in properties)
+                foreach (PropertyInfo pi in properties)
                 {
-                    Parser(prop, entity, row[prop.Name]);
+                    Parser(pi, entity, row[pi.Name]);
                 }
 
                 entities.Add(entity);

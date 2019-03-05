@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 
 namespace SimpleDataAccess
 {
-
-    // you can parse a LINQ expression tree using the visitor pattern
+    // Parse a LINQ expression tree using the visitor pattern
     // https://stackoverflow.com/questions/7731905/how-to-convert-an-expression-tree-to-a-partial-sql-query
 
     public class QueryTranslator : ExpressionVisitor

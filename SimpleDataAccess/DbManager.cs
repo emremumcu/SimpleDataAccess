@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Data;
+using System.Linq.Expressions;
+using SimpleDataAccess.Attributes;
+using System.Reflection;
 
 namespace SimpleDataAccess
 {
@@ -134,7 +137,44 @@ namespace SimpleDataAccess
         #endregion Select
 
 
+        #region EntityBinders
 
+        public T SelectSingle<T>(Expression<Func<T, object>> filter) where T : class, new()
+        {
+            Table TableAttribute = typeof(T).GetCustomAttribute<Table>(false);
+
+            if (TableAttribute == null)
+            {
+                throw new CustomAttributeFormatException($"{ typeof(Table).FullName } attribute is required for { typeof(T).FullName }");
+            }
+            else
+            {
+                string TableName = TableAttribute.Name;
+
+                List<string> columnList = new List<string>();
+
+                PropertyInfo[] props = typeof(T).GetProperties();
+
+                foreach (PropertyInfo pi in props)
+                {
+                    Column col = pi.GetCustomAttribute<Column>(false);
+                    if (col != null) columnList.Add(col.Name);
+                }
+
+                string sqlFilter = new QueryTranslator().Translate(filter);
+
+                string SQL = $"SELECT { String.Join(",", columnList.ToArray()) } FROM {TableName} WHERE {sqlFilter}";
+
+                System.Data.DataTable dt = Select(SQL);
+
+                T entitiy = new DataMapper<T>().Map(dt.Rows[0]);
+
+                return entitiy;
+            }
+
+        }
+
+        #endregion EntityBinders
 
     }
 }

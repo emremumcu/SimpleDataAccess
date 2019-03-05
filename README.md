@@ -20,5 +20,7 @@ Sample Use:
 // Code Snippet:
 
 DbManager db = new DbManager(DbProvider.MSSqlServer, "connection-string");
+
 Persons allPersons = db.SelectAll<Persons>();
+    
 Persons johnDoe = db.SelectSingle<Persons>(x => x.Name == "John" && x.Surname=="Doe");

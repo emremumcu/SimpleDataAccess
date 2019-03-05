@@ -174,6 +174,84 @@ namespace SimpleDataAccess
 
         }
 
+        public List<T> Select<T>(Expression<Func<T, object>> filter) where T : class, new()
+        {
+            Table TableAttribute = typeof(T).GetCustomAttribute<Table>(false);
+
+            if (TableAttribute == null)
+            {
+                throw new CustomAttributeFormatException($"{ typeof(Table).FullName } attribute is required for { typeof(T).FullName }");
+            }
+            else
+            {
+                string TableName = TableAttribute.Name;
+
+                List<string> columnList = new List<string>();
+
+                PropertyInfo[] props = typeof(T).GetProperties();
+
+                foreach (PropertyInfo pi in props)
+                {
+                    Column col = pi.GetCustomAttribute<Column>(false);
+                    if (col != null) columnList.Add(col.Name);
+                }
+
+                string sqlFilter = new QueryTranslator().Translate(filter);
+
+                string SQL = $"SELECT { String.Join(",", columnList.ToArray()) } FROM {TableName} WHERE {sqlFilter}";
+
+                System.Data.DataTable dt = Select(SQL);
+
+                List<T> list = new List<T>();
+
+                foreach (DataRow dr in dt.Rows)
+                {
+                    list.Add(new DataMapper<T>().Map(dr));
+                }
+
+                return list;
+            }
+
+        }
+
+        public List<T> SelectAll<T>() where T : class, new()
+        {
+            Table TableAttribute = typeof(T).GetCustomAttribute<Table>(false);
+
+            if (TableAttribute == null)
+            {
+                throw new CustomAttributeFormatException($"{ typeof(Table).FullName } attribute is required for { typeof(T).FullName }");
+            }
+            else
+            {
+                string TableName = TableAttribute.Name;
+
+                List<string> columnList = new List<string>();
+
+                PropertyInfo[] props = typeof(T).GetProperties();
+
+                foreach (PropertyInfo pi in props)
+                {
+                    Column col = pi.GetCustomAttribute<Column>(false);
+                    if (col != null) columnList.Add(col.Name);
+                }
+
+                string SQL = $"SELECT { String.Join(",", columnList.ToArray()) } FROM {TableName}";
+
+                System.Data.DataTable dt = Select(SQL);
+
+                List<T> list = new List<T>();
+
+                foreach (DataRow dr in dt.Rows)
+                {
+                    list.Add(new DataMapper<T>().Map(dr));
+                }
+
+                return list;
+            }
+
+        }
+
         #endregion EntityBinders
 
     }

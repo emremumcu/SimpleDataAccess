@@ -290,6 +290,41 @@ namespace SimpleDataAccess
 
         }
 
+        public List<T> Select2<T>(Expression<Func<T, object>> filter) where T : class, new()
+        {
+            string TableName = typeof(T).Name;
+
+            List<PropertyInfo> properties = typeof(T).GetProperties().ToList();
+
+            string sqlFilter = new QueryTranslator().Translate(filter);
+
+            string SQL = $"SELECT { String.Join(",", properties.Select(p => p.Name).ToArray()) } FROM Person.{TableName}  WHERE {sqlFilter}";
+
+            DbDataReader reader = CreateReader(SQL);
+
+            List<T> list = new GenericDataBinder<T>().CreateList(reader);
+
+            return list;
+
+        }
+
+        public List<T> SelectSingle2<T>(Expression<Func<T, object>> filter) where T : class, new()
+        {
+            string TableName = typeof(T).Name;
+
+            List<PropertyInfo> properties = typeof(T).GetProperties().ToList();
+
+            string sqlFilter = new QueryTranslator().Translate(filter);
+
+            string SQL = $"SELECT { String.Join(",", properties.Select(p => p.Name).ToArray()) } FROM Person.{TableName}  WHERE {sqlFilter}";
+
+            DbDataReader reader = CreateReader(SQL);
+
+            List<T> list = new GenericDataBinder<T>().CreateList(reader);
+
+            return list;
+
+        }
         #endregion EntityBinders
 
     }

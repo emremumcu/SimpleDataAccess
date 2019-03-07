@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28307.421
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleDataAccess", "SimpleDataAccess\SimpleDataAccess.csproj", "{395B5F41-DE60-4F8B-9ADD-680CFBD0A615}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleDataAccessDemo", "SimpleDataAccessDemo\SimpleDataAccessDemo.csproj", "{1938FA20-8D2C-4E48-85E2-36002C5DD124}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{395B5F41-DE60-4F8B-9ADD-680CFBD0A615}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{395B5F41-DE60-4F8B-9ADD-680CFBD0A615}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{395B5F41-DE60-4F8B-9ADD-680CFBD0A615}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1938FA20-8D2C-4E48-85E2-36002C5DD124}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1938FA20-8D2C-4E48-85E2-36002C5DD124}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1938FA20-8D2C-4E48-85E2-36002C5DD124}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1938FA20-8D2C-4E48-85E2-36002C5DD124}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

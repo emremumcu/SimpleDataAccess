@@ -277,13 +277,34 @@ namespace SimpleDataAccess
             }
         }
 
+        private string TableName<T>()
+        {
+            Table TableAttribute = typeof(T).GetCustomAttribute<Table>(false);
+
+            string tableFullName = string.Empty;
+
+            if(TableAttribute != null)
+            {
+                // if TableAttribute is specified, use it for fetching table name
+                string schema = (TableAttribute.SchemaName) != null ? ($"{TableAttribute.SchemaName}."):(null);
+                string table = TableAttribute.TableName;
+
+                tableFullName = $"{schema}{table}";
+            }
+            else
+            {
+                // if TableAttribute is not specified, use class name for fetching table name
+                tableFullName = typeof(T).Name;
+            }
+
+            return tableFullName;
+        }
+
         public List<T> SelectAll<T>() where T : class, new()
         {
-            string TableName = typeof(T).Name;
-
             List<PropertyInfo> properties = typeof(T).GetProperties().ToList();
 
-            string SQL = $"SELECT { String.Join(",", properties.Select(p => p.Name).ToArray()) } FROM {TableName}";
+            string SQL = $"SELECT { String.Join(",", properties.Select(p => p.Name).ToArray()) } FROM { TableName<T>() }";
 
             DbDataReader reader = CreateReader(SQL);
 
@@ -294,31 +315,11 @@ namespace SimpleDataAccess
 
         public List<T> Select<T>(Expression<Func<T, object>> filter) where T : class, new()
         {
-            string TableName = typeof(T).Name;
-
             List<PropertyInfo> properties = typeof(T).GetProperties().ToList();
 
             string sqlFilter = new QueryTranslator().Translate(filter);
 
-            string SQL = $"SELECT { String.Join(",", properties.Select(p => p.Name).ToArray()) } FROM {TableName}  WHERE {sqlFilter}";
-
-            DbDataReader reader = CreateReader(SQL);
-
-            List<T> list = new GenericDataBinder<T>().CreateList(reader);
-
-            return list;
-
-        }
-
-        public List<T> SelectSingle<T>(Expression<Func<T, object>> filter) where T : class, new()
-        {
-            string TableName = typeof(T).Name;
-
-            List<PropertyInfo> properties = typeof(T).GetProperties().ToList();
-
-            string sqlFilter = new QueryTranslator().Translate(filter);
-
-            string SQL = $"SELECT { String.Join(",", properties.Select(p => p.Name).ToArray()) } FROM {TableName}  WHERE {sqlFilter}";
+            string SQL = $"SELECT { String.Join(",", properties.Select(p => p.Name).ToArray()) } FROM { TableName<T>() }  WHERE {sqlFilter}";
 
             DbDataReader reader = CreateReader(SQL);
 

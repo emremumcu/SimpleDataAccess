@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq.Expressions;
 using SimpleDataAccess.Attributes;
 using System.Reflection;
+using System.Linq;
 
 namespace SimpleDataAccess
 {
@@ -249,6 +250,43 @@ namespace SimpleDataAccess
 
                 return list;
             }
+
+        }
+
+
+        private DbDataReader CreateReader(string SQL, List<DbParameter> prms = null)
+        {
+            using (DbCommand dbCommand = dbFactory.CreateCommand())
+            {
+                dbCommand.CommandText = SQL;
+                dbCommand.Connection = dbFactory.CreateConnection(dbConnStrBuilder.ConnectionString);
+
+                if (prms != null)
+                {
+                    dbCommand.Parameters.Clear();
+                    dbCommand.Parameters.AddRange(prms.ToArray());
+                }
+
+                dbCommand.Connection.Open();
+                DbDataReader reader = dbCommand.ExecuteReader(CommandBehavior.CloseConnection);
+
+                return reader;
+            }
+        }
+
+        public List<T> SelectAll2<T>() where T : class, new()
+        {
+            string TableName = typeof(T).Name;
+
+            List<PropertyInfo> properties = typeof(T).GetProperties().ToList();
+
+            string SQL = $"SELECT { String.Join(",", properties.Select(p => p.Name).ToArray()) } FROM Person.{TableName}";
+
+            DbDataReader reader = CreateReader(SQL);
+
+            List<T> list = new GenericDataBinder<T>().CreateList(reader);
+
+            return list;
 
         }
 

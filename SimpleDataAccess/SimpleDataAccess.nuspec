@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>SimpleDataAccess</id>
-    <version>2</version>
+    <version>1.2.0</version>
     <title>Simple Data Access</title>
     <authors>Emre MUMCU</authors>
     <owners>Emre MUMCU mumcu.net</owners>

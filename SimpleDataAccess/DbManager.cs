@@ -316,7 +316,7 @@ namespace SimpleDataAccess
 
             string sqlFilter = new QueryTranslator().Translate(filter);
 
-            string SQL = $"SELECT { String.Join(",", properties.Select(p => p.Name).ToArray()) } FROM Person.{TableName}  WHERE {sqlFilter}";
+            string SQL = $"SELECT { String.Join(",", properties.Select(p => p.Name).ToArray()) } FROM {TableName}  WHERE {sqlFilter}";
 
             DbDataReader reader = CreateReader(SQL);
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -14,11 +14,11 @@ namespace SimpleDataAccess
 
     public class GenericDataBinder<T>
     {
-        public virtual List<T> CreateList(IDataReader reader)
+        public virtual List<T> CreateList(DbDataReader reader)
         {
             var results = new List<T>();
 
-            Func<IDataReader, T> readRow = this.GetReader(reader);
+            Func<DbDataReader, T> readRow = this.GetReader(reader);
 
             while (reader.Read())
                 results.Add(readRow(reader));
@@ -26,7 +26,7 @@ namespace SimpleDataAccess
             return results;
         }
 
-        private Func<IDataReader, T> GetReader(IDataReader reader)
+        private Func<DbDataReader, T> GetReader(DbDataReader reader)
         {
             Delegate resDelegate;
 
@@ -36,8 +36,8 @@ namespace SimpleDataAccess
                 readerColumns.Add(reader.GetName(index));
 
             // determine the information about the reader
-            var readerParam = Expression.Parameter(typeof(IDataReader), "reader");
-            var readerGetValue = typeof(IDataReader).GetMethod("GetValue");
+            var readerParam = Expression.Parameter(typeof(DbDataReader), "reader");
+            var readerGetValue = typeof(DbDataReader).GetMethod("GetValue");
 
             // create a Constant expression of DBNull.Value to compare values to in reader
             var dbNullValue = typeof(System.DBNull).GetField("Value");
@@ -84,11 +84,11 @@ namespace SimpleDataAccess
 
             var memberInit = Expression.MemberInit(newItem, memberBindings);
 
-            var lambda = Expression.Lambda<Func<SqlDataReader, T>>(memberInit, new ParameterExpression[] { readerParam });
+            var lambda = Expression.Lambda<Func<DbDataReader, T>>(memberInit, new ParameterExpression[] { readerParam });
 
             resDelegate = lambda.Compile();
 
-            return (Func<IDataReader, T>)resDelegate;
+            return (Func<DbDataReader, T>)resDelegate;
         }
     }
 

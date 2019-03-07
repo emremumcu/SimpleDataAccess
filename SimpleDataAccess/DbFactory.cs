@@ -104,6 +104,25 @@ namespace SimpleDataAccess
             }
         }
 
+        public DbParameter CreateParameter()
+        {
+            switch (_DbProvider)
+            {
+                case DbProvider.MSSqlServer:
+                    return new SqlParameter();
+                case DbProvider.OleDb:
+                    return new OleDbParameter();
+                case DbProvider.Odbc:
+                    return new OdbcParameter();
+                case DbProvider.Oracle:
+                    return new OracleParameter();
+                case DbProvider.IBMDB2:
+                    return new DB2Parameter();
+                default:
+                    return null;
+            }
+        }
+
         public DbDataAdapter CreateAdpater()
         {
             switch (_DbProvider)

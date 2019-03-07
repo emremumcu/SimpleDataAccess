@@ -140,119 +140,122 @@ namespace SimpleDataAccess
 
         #region EntityBinders
 
-        public T SelectSingle<T>(Expression<Func<T, object>> filter) where T : class, new()
-        {
-            Table TableAttribute = typeof(T).GetCustomAttribute<Table>(false);
+        #region Obsolete
 
-            if (TableAttribute == null)
-            {
-                throw new CustomAttributeFormatException($"{ typeof(Table).FullName } attribute is required for { typeof(T).FullName }");
-            }
-            else
-            {
-                string TableName = TableAttribute.Name;
+        //public T SelectSingle<T>(Expression<Func<T, object>> filter) where T : class, new()
+        //{
+        //    Table TableAttribute = typeof(T).GetCustomAttribute<Table>(false);
 
-                List<string> columnList = new List<string>();
+        //    if (TableAttribute == null)
+        //    {
+        //        throw new CustomAttributeFormatException($"{ typeof(Table).FullName } attribute is required for { typeof(T).FullName }");
+        //    }
+        //    else
+        //    {
+        //        string TableName = TableAttribute.Name;
 
-                PropertyInfo[] props = typeof(T).GetProperties();
+        //        List<string> columnList = new List<string>();
 
-                foreach (PropertyInfo pi in props)
-                {
-                    Column col = pi.GetCustomAttribute<Column>(false);
-                    if (col != null) columnList.Add(col.Name);
-                }
+        //        PropertyInfo[] props = typeof(T).GetProperties();
 
-                string sqlFilter = new QueryTranslator().Translate(filter);
+        //        foreach (PropertyInfo pi in props)
+        //        {
+        //            Column col = pi.GetCustomAttribute<Column>(false);
+        //            if (col != null) columnList.Add(col.Name);
+        //        }
 
-                string SQL = $"SELECT { String.Join(",", columnList.ToArray()) } FROM {TableName} WHERE {sqlFilter}";
+        //        string sqlFilter = new QueryTranslator().Translate(filter);
 
-                System.Data.DataTable dt = Select(SQL);
+        //        string SQL = $"SELECT { String.Join(",", columnList.ToArray()) } FROM {TableName} WHERE {sqlFilter}";
 
-                T entitiy = new DataMapper<T>().Map(dt.Rows[0]);
+        //        System.Data.DataTable dt = Select(SQL);
 
-                return entitiy;
-            }
+        //        T entitiy = new DataMapper<T>().Map(dt.Rows[0]);
 
-        }
+        //        return entitiy;
+        //    }
 
-        public List<T> Select<T>(Expression<Func<T, object>> filter) where T : class, new()
-        {
-            Table TableAttribute = typeof(T).GetCustomAttribute<Table>(false);
+        //}
 
-            if (TableAttribute == null)
-            {
-                throw new CustomAttributeFormatException($"{ typeof(Table).FullName } attribute is required for { typeof(T).FullName }");
-            }
-            else
-            {
-                string TableName = TableAttribute.Name;
+        //public List<T> Select<T>(Expression<Func<T, object>> filter) where T : class, new()
+        //{
+        //    Table TableAttribute = typeof(T).GetCustomAttribute<Table>(false);
 
-                List<string> columnList = new List<string>();
+        //    if (TableAttribute == null)
+        //    {
+        //        throw new CustomAttributeFormatException($"{ typeof(Table).FullName } attribute is required for { typeof(T).FullName }");
+        //    }
+        //    else
+        //    {
+        //        string TableName = TableAttribute.Name;
 
-                PropertyInfo[] props = typeof(T).GetProperties();
+        //        List<string> columnList = new List<string>();
 
-                foreach (PropertyInfo pi in props)
-                {
-                    Column col = pi.GetCustomAttribute<Column>(false);
-                    if (col != null) columnList.Add(col.Name);
-                }
+        //        PropertyInfo[] props = typeof(T).GetProperties();
 
-                string sqlFilter = new QueryTranslator().Translate(filter);
+        //        foreach (PropertyInfo pi in props)
+        //        {
+        //            Column col = pi.GetCustomAttribute<Column>(false);
+        //            if (col != null) columnList.Add(col.Name);
+        //        }
 
-                string SQL = $"SELECT { String.Join(",", columnList.ToArray()) } FROM {TableName} WHERE {sqlFilter}";
+        //        string sqlFilter = new QueryTranslator().Translate(filter);
 
-                System.Data.DataTable dt = Select(SQL);
+        //        string SQL = $"SELECT { String.Join(",", columnList.ToArray()) } FROM {TableName} WHERE {sqlFilter}";
 
-                List<T> list = new List<T>();
+        //        System.Data.DataTable dt = Select(SQL);
 
-                foreach (DataRow dr in dt.Rows)
-                {
-                    list.Add(new DataMapper<T>().Map(dr));
-                }
+        //        List<T> list = new List<T>();
 
-                return list;
-            }
+        //        foreach (DataRow dr in dt.Rows)
+        //        {
+        //            list.Add(new DataMapper<T>().Map(dr));
+        //        }
 
-        }
+        //        return list;
+        //    }
 
-        public List<T> SelectAll<T>() where T : class, new()
-        {
-            Table TableAttribute = typeof(T).GetCustomAttribute<Table>(false);
+        //}
 
-            if (TableAttribute == null)
-            {
-                throw new CustomAttributeFormatException($"{ typeof(Table).FullName } attribute is required for { typeof(T).FullName }");
-            }
-            else
-            {
-                string TableName = TableAttribute.Name;
+        //public List<T> SelectAll<T>() where T : class, new()
+        //{
+        //    Table TableAttribute = typeof(T).GetCustomAttribute<Table>(false);
 
-                List<string> columnList = new List<string>();
+        //    if (TableAttribute == null)
+        //    {
+        //        throw new CustomAttributeFormatException($"{ typeof(Table).FullName } attribute is required for { typeof(T).FullName }");
+        //    }
+        //    else
+        //    {
+        //        string TableName = TableAttribute.Name;
 
-                PropertyInfo[] props = typeof(T).GetProperties();
+        //        List<string> columnList = new List<string>();
 
-                foreach (PropertyInfo pi in props)
-                {
-                    Column col = pi.GetCustomAttribute<Column>(false);
-                    if (col != null) columnList.Add(col.Name);
-                }
+        //        PropertyInfo[] props = typeof(T).GetProperties();
 
-                string SQL = $"SELECT { String.Join(",", columnList.ToArray()) } FROM {TableName}";
+        //        foreach (PropertyInfo pi in props)
+        //        {
+        //            Column col = pi.GetCustomAttribute<Column>(false);
+        //            if (col != null) columnList.Add(col.Name);
+        //        }
 
-                System.Data.DataTable dt = Select(SQL);
+        //        string SQL = $"SELECT { String.Join(",", columnList.ToArray()) } FROM {TableName}";
 
-                List<T> list = new List<T>();
+        //        System.Data.DataTable dt = Select(SQL);
 
-                foreach (DataRow dr in dt.Rows)
-                {
-                    list.Add(new DataMapper<T>().Map(dr));
-                }
+        //        List<T> list = new List<T>();
 
-                return list;
-            }
+        //        foreach (DataRow dr in dt.Rows)
+        //        {
+        //            list.Add(new DataMapper<T>().Map(dr));
+        //        }
 
-        }
+        //        return list;
+        //    }
 
+        //}
+
+        #endregion Obsolete
 
         private DbDataReader CreateReader(string SQL, List<DbParameter> prms = null)
         {
@@ -274,7 +277,7 @@ namespace SimpleDataAccess
             }
         }
 
-        public List<T> SelectAll2<T>() where T : class, new()
+        public List<T> SelectAll<T>() where T : class, new()
         {
             string TableName = typeof(T).Name;
 
@@ -287,10 +290,9 @@ namespace SimpleDataAccess
             List<T> list = new GenericDataBinder<T>().CreateList(reader);
 
             return list;
-
         }
 
-        public List<T> Select2<T>(Expression<Func<T, object>> filter) where T : class, new()
+        public List<T> Select<T>(Expression<Func<T, object>> filter) where T : class, new()
         {
             string TableName = typeof(T).Name;
 
@@ -308,7 +310,7 @@ namespace SimpleDataAccess
 
         }
 
-        public List<T> SelectSingle2<T>(Expression<Func<T, object>> filter) where T : class, new()
+        public List<T> SelectSingle<T>(Expression<Func<T, object>> filter) where T : class, new()
         {
             string TableName = typeof(T).Name;
 
@@ -325,7 +327,44 @@ namespace SimpleDataAccess
             return list;
 
         }
+        
         #endregion EntityBinders
 
+        #region Insert
+
+        public void Insert<T>(T obj) where T : class, new()
+        {
+            Table TableAttribute = typeof(T).GetCustomAttribute<Table>(false);
+
+            string SchemaName = TableAttribute.SchemaName;
+
+            string TableName = typeof(T).Name;
+
+
+            List<PropertyInfo> properties = typeof(T).GetProperties().ToList();
+
+            string SQL = $"SELECT { String.Join(",", properties.Select(p => p.Name).ToArray()) } FROM Person.{TableName}";
+
+            // class property kullanarak parametreleri oluşturma
+
+            List<DbParameter> prms = new List<DbParameter>();
+
+            foreach (PropertyInfo pi in properties)
+            {
+                DbParameter p = dbFactory.CreateParameter();
+                p.ParameterName = $"@{pi.Name}";
+                p.Value = pi.GetValue(obj);
+
+                //Column col = pi.GetCustomAttribute<Column>(false);
+                //if (col != null) columnList.Add(col.Name);
+            }
+
+            string SQLINSERT = $@"INSERT INTO {SchemaName}.{TableName} ({String.Join(",", properties.Select(p => p.Name).ToArray())}) VALUES (@{String.Join(",@", properties.Select(p => p.Name).ToArray())})";
+
+            ExecuteNonQuery(SQLINSERT, prms);
+
+        }
+
+        #endregion Insert
     }
 }

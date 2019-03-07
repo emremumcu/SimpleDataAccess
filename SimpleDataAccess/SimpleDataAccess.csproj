@@ -55,6 +55,7 @@
     <Compile Include="DataMapper.cs" />
     <Compile Include="DbFactory.cs" />
     <Compile Include="DbManager.cs" />
+    <Compile Include="EntityCreator.cs" />
     <Compile Include="Evaluator.cs" />
     <Compile Include="GenericDataBinder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

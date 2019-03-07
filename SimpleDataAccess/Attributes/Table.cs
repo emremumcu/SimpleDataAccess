@@ -9,6 +9,7 @@ namespace SimpleDataAccess.Attributes
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
     public class Table : Attribute
     {
-        public string Name { get; set; }
+        public string SchemaName { get; set; }
+        public string TableName { get; set; }        
     }
 }

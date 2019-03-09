@@ -56,7 +56,6 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="SimpleDataAccess.nuspec" />
-    <None Include="types.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

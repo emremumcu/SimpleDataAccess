@@ -41,9 +41,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Attributes\Column.cs" />
-    <Compile Include="Attributes\Identity.cs" />
-    <Compile Include="Attributes\ReadOnly.cs" />
     <Compile Include="Attributes\Table.cs" />
     <Compile Include="DbFactory.cs" />
     <Compile Include="DbManager.cs" />

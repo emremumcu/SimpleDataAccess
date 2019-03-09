@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 namespace SimpleDataAccess.Attributes
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
-    public class NotNull : Attribute
+    public class ReadOnly : Attribute
     {
-        
+
     }
 }

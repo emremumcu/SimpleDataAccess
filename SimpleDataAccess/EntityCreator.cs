@@ -35,6 +35,8 @@ namespace SimpleDataAccess
 
                 conn.Close();
 
+                List<string> idColList = IdColumnNames(SchemaName, TableName);
+
                 StringBuilder @class = new StringBuilder();
 
                 @class.Append("using System;");
@@ -52,8 +54,12 @@ namespace SimpleDataAccess
                 foreach (DataRow dr in columnList.Rows)
                 {
                     bool allowNull = (dr["IS_NULLABLE"].ToString() == "YES");
+                    bool isIdColumn = (idColList.Contains(dr["COLUMN_NAME"].ToString()));
+
                     if (!allowNull)
                         @class.Append("\t").Append("[NotNull]").Append(Environment.NewLine);
+                    if(isIdColumn)
+                        @class.Append("\t").Append("[Identity]").Append(Environment.NewLine);
 
                     @class.Append("\t");
                     @class.Append("public ");
@@ -71,7 +77,7 @@ namespace SimpleDataAccess
 
         Dictionary<string, string> sqlTypeDict;
 
-        public void ParseTypeDoc()
+        private void ParseTypeDoc()
         {
             sqlTypeDict = new Dictionary<string, string>();
 
@@ -91,12 +97,38 @@ namespace SimpleDataAccess
             }
         }
 
-        public string SQLTypeConverter(string Name)
+        private string SQLTypeConverter(string Name)
         {
             if(sqlTypeDict == null) ParseTypeDoc();
 
             if (sqlTypeDict.ContainsKey(Name)) return sqlTypeDict[Name];
             else return "?";
         }
+
+        private List<string> IdColumnNames(string SchemaName, string TableName)
+        {
+            string sql = @"SELECT ColumnName FROM (
+                        SELECT 
+	                        OBJECT_SCHEMA_NAME(tables.object_id, db_id())
+	                        AS SchemaName,
+	                        tables.name As TableName,
+	                        columns.name as ColumnName
+                        FROM sys.tables tables 
+	                        JOIN sys.columns columns 
+                        ON tables.object_id=columns.object_id
+                        WHERE columns.is_identity=1
+                        ) AS IDCOLS where IDCOLS.SchemaName=@SchemaName and IDCOLS.TableName=@TableName
+            ";
+
+            List<DbParameter> prms = new List<DbParameter>();
+
+            prms.Add(new SqlParameter("@SchemaName", SchemaName));
+            prms.Add(new SqlParameter("@TableName", TableName));
+
+            DataTable dt = _dbManager.Select(sql);
+
+            return dt.AsEnumerable().Select(x => x.Field<string>("ColumnName")).ToList();
+        }
+
     }
 }

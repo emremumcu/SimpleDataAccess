@@ -42,7 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\Column.cs" />
-    <Compile Include="Attributes\NotNull.cs" />
+    <Compile Include="Attributes\Identity.cs" />
+    <Compile Include="Attributes\ReadOnly.cs" />
     <Compile Include="Attributes\Table.cs" />
     <Compile Include="DataMapper.cs" />
     <Compile Include="DbFactory.cs" />

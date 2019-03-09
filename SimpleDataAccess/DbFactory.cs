@@ -1,5 +1,5 @@
-﻿using IBM.Data.DB2;
-using Oracle.ManagedDataAccess.Client;
+﻿//using IBM.Data.DB2;
+//using Oracle.ManagedDataAccess.Client;
 using System.Data.Common;
 using System.Data.Odbc;
 using System.Data.OleDb;
@@ -33,15 +33,15 @@ namespace SimpleDataAccess
                 case DbProvider.OleDb:
                     dbFactory = OleDbFactory.Instance;
                     break;
-                case DbProvider.Oracle:
-                    dbFactory = OracleClientFactory.Instance;
-                    break;
+                //case DbProvider.Oracle:
+                //    dbFactory = OracleClientFactory.Instance;
+                //    break;
                 case DbProvider.Odbc:
                     dbFactory = OdbcFactory.Instance;
                     break;
-                case DbProvider.IBMDB2:
-                    dbFactory = DB2Factory.Instance;
-                    break;
+                //case DbProvider.IBMDB2:
+                //    dbFactory = DB2Factory.Instance;
+                //    break;
             }
 
             return dbFactory;
@@ -57,10 +57,10 @@ namespace SimpleDataAccess
                     return new OleDbConnection();
                 case DbProvider.Odbc:
                     return new OdbcConnection();
-                case DbProvider.Oracle:
-                    return new OracleConnection();
-                case DbProvider.IBMDB2:
-                    return new DB2Connection();
+                //case DbProvider.Oracle:
+                //    return new OracleConnection();
+                //case DbProvider.IBMDB2:
+                //    return new DB2Connection();
                 default:
                     return null;
             }
@@ -76,10 +76,10 @@ namespace SimpleDataAccess
                     return new OleDbConnection(connectionString);
                 case DbProvider.Odbc:
                     return new OdbcConnection(connectionString);
-                case DbProvider.Oracle:
-                    return new OracleConnection(connectionString);
-                case DbProvider.IBMDB2:
-                    return new DB2Connection(connectionString);
+                //case DbProvider.Oracle:
+                //    return new OracleConnection(connectionString);
+                //case DbProvider.IBMDB2:
+                //    return new DB2Connection(connectionString);
                 default:
                     return null;
             }
@@ -95,10 +95,10 @@ namespace SimpleDataAccess
                     return new OleDbCommand();
                 case DbProvider.Odbc:
                     return new OdbcCommand();
-                case DbProvider.Oracle:
-                    return new OracleCommand();
-                case DbProvider.IBMDB2:
-                    return new DB2Command();
+                //case DbProvider.Oracle:
+                //    return new OracleCommand();
+                //case DbProvider.IBMDB2:
+                //    return new DB2Command();
                 default:
                     return null;
             }
@@ -114,10 +114,10 @@ namespace SimpleDataAccess
                     return new OleDbParameter();
                 case DbProvider.Odbc:
                     return new OdbcParameter();
-                case DbProvider.Oracle:
-                    return new OracleParameter();
-                case DbProvider.IBMDB2:
-                    return new DB2Parameter();
+                //case DbProvider.Oracle:
+                //    return new OracleParameter();
+                //case DbProvider.IBMDB2:
+                //    return new DB2Parameter();
                 default:
                     return null;
             }
@@ -133,10 +133,10 @@ namespace SimpleDataAccess
                     return new OleDbDataAdapter();
                 case DbProvider.Odbc:
                     return new OdbcDataAdapter();
-                case DbProvider.Oracle:
-                    return new OracleDataAdapter();
-                case DbProvider.IBMDB2:
-                    return new DB2DataAdapter();
+                //case DbProvider.Oracle:
+                //    return new OracleDataAdapter();
+                //case DbProvider.IBMDB2:
+                //    return new DB2DataAdapter();
                 default:
                     return null;
             }
@@ -152,10 +152,10 @@ namespace SimpleDataAccess
                     return new OleDbConnectionStringBuilder();
                 case DbProvider.Odbc:
                     return new OdbcConnectionStringBuilder();
-                case DbProvider.Oracle:
-                    return new OracleConnectionStringBuilder();
-                case DbProvider.IBMDB2:
-                    return new DB2ConnectionStringBuilder();
+                //case DbProvider.Oracle:
+                //    return new OracleConnectionStringBuilder();
+                //case DbProvider.IBMDB2:
+                //    return new DB2ConnectionStringBuilder();
                 default:
                     return null;
             }

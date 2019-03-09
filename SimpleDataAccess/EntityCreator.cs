@@ -1,76 +1,72 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace SimpleDataAccess
 {
     public class EntityCreator
     {
-        public string EntityClass(string SchemaName, string TableName)
+        private DbManager _dbManager;
+
+        public EntityCreator(DbManager dbManager)
         {
-            SqlConnection conn = new SqlConnection();
+            _dbManager = dbManager;
+        }
 
-            conn.ConnectionString = dbConnStrBuilder.ConnectionString;
-
-            conn.Open();
-
-            string[] restrictions = new string[4] { null, null, null, "BASE TABLE" }; // table_catalog table_schema table_name table_type
-            DataTable tableList = conn.GetSchema("Tables", restrictions);
-
-            string[] restrictions2 = new string[4] { null, null, TableName, null };
-            DataTable columnList = conn.GetSchema("Columns", restrictions2);
-
-            conn.Close();
-
-
-
-
-
-
-            StringBuilder @class = new StringBuilder();
-
-
-
-
-
-
-            @class.Append("using System;");
-            @class.Append(Environment.NewLine);
-            @class.Append("using SimpleDataAccess.Attributes;");
-            @class.Append(Environment.NewLine);
-            @class.Append("using System.Data.SqlTypes;");
-            @class.Append(Environment.NewLine);
-            @class.Append(Environment.NewLine);
-
-            @class.Append($"[Table(SchemaName = \"{SchemaName}\", TableName = \"{TableName}\")]");
-            @class.Append(Environment.NewLine);
-            @class.Append($"public class {TableName} {{{Environment.NewLine}");
-
-            foreach (DataRow dr in columnList.Rows)
+        public string Create(string SchemaName, string TableName)
+        {
+            using (DbConnection conn = _dbManager.CreateConnection())
             {
-                bool allowNull = (dr["IS_NULLABLE"].ToString() == "YES");
-                if (!allowNull)
-                    @class.Append("\t").Append("[NotNull]").Append(Environment.NewLine);
+                conn.Open();
 
-                @class.Append("\t");
-                @class.Append("public ");
-                @class.Append($"{ SQLTypeConverter(dr["DATA_TYPE"].ToString()) } ");
-                @class.Append($"{ dr["COLUMN_NAME"] } ");
-                @class.Append("{ get; set; }");
+                                                           // table_catalog table_schema table_name table_type
+                string[] tableRestrictions = new string[4] { null, null, null, "BASE TABLE" }; 
+                DataTable tableList = conn.GetSchema("Tables", tableRestrictions);
+
+                                                           // table_catalog table_schema table_name table_type
+                string[] columnRestrictions = new string[4] { null, null, TableName, null };
+                DataTable columnList = conn.GetSchema("Columns", columnRestrictions);
+
+                conn.Close();
+
+                StringBuilder @class = new StringBuilder();
+
+                @class.Append("using System;");
+                @class.Append(Environment.NewLine);
+                @class.Append("using SimpleDataAccess.Attributes;");
+                @class.Append(Environment.NewLine);
+                @class.Append("using System.Data.SqlTypes;");
+                @class.Append(Environment.NewLine);
                 @class.Append(Environment.NewLine);
 
+                @class.Append($"[Table(SchemaName = \"{SchemaName}\", TableName = \"{TableName}\")]");
+                @class.Append(Environment.NewLine);
+                @class.Append($"public class {TableName} {{{Environment.NewLine}");
 
+                foreach (DataRow dr in columnList.Rows)
+                {
+                    bool allowNull = (dr["IS_NULLABLE"].ToString() == "YES");
+                    if (!allowNull)
+                        @class.Append("\t").Append("[NotNull]").Append(Environment.NewLine);
 
+                    @class.Append("\t");
+                    @class.Append("public ");
+                    @class.Append($"{ SQLTypeConverter(dr["DATA_TYPE"].ToString()) } ");
+                    @class.Append($"{ dr["COLUMN_NAME"] } ");
+                    @class.Append("{ get; set; }");
+                    @class.Append(Environment.NewLine);
+                }
 
+                @class.Append($"}}");
+
+                return @class.ToString();
             }
-
-
-            @class.Append($"}}");
-
-            return @class.ToString();
-
         }
 
         Dictionary<string, string> sqlTypeDict;
@@ -81,7 +77,7 @@ namespace SimpleDataAccess
 
             XmlDocument sqlTypeDoc = new XmlDocument();
 
-            sqlTypeDoc.Load(@"C:\Users\emumcu2\Desktop\SimpleDataAccess-master\SimpleDataAccess\types.config");
+            sqlTypeDoc.Load("types.config");
 
             XmlNode a = sqlTypeDoc.SelectSingleNode("/configuration/sqlTypeSettings");
 
@@ -97,8 +93,7 @@ namespace SimpleDataAccess
 
         public string SQLTypeConverter(string Name)
         {
-
-            ParseTypeDoc();
+            if(sqlTypeDict == null) ParseTypeDoc();
 
             if (sqlTypeDict.ContainsKey(Name)) return sqlTypeDict[Name];
             else return "?";

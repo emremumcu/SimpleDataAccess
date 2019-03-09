@@ -12,20 +12,26 @@ namespace SimpleDataAccess
     public partial class DbManager
     {
         private DbFactory dbFactory;
-        private DbConnectionStringBuilder dbConnStrBuilder;
+
+        private DbConnectionStringBuilder _dbConnectionStringBuilder;
 
         public DbManager(DbProvider provider, string connectionString)
         {
             try
             {
                 dbFactory = new DbFactory(provider);
-                dbConnStrBuilder = dbFactory.CreateConnectionStringBuilder();
-                dbConnStrBuilder.ConnectionString = connectionString;
+                _dbConnectionStringBuilder = dbFactory.CreateConnectionStringBuilder();
+                _dbConnectionStringBuilder.ConnectionString = connectionString;
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+        }
+
+        public DbConnection CreateConnection()
+        {
+            return dbFactory.CreateConnection(_dbConnectionStringBuilder.ConnectionString);
         }
 
         #region ExecuteNonQuery
@@ -35,7 +41,7 @@ namespace SimpleDataAccess
             using (DbCommand dbCommand = dbFactory.CreateCommand())
             {
                 dbCommand.CommandText = SQL;
-                dbCommand.Connection = dbFactory.CreateConnection(dbConnStrBuilder.ConnectionString);
+                dbCommand.Connection = dbFactory.CreateConnection(_dbConnectionStringBuilder.ConnectionString);
 
                 if (prms != null)
                 {
@@ -71,7 +77,7 @@ namespace SimpleDataAccess
             using (DbCommand dbCommand = dbFactory.CreateCommand())
             {
                 dbCommand.CommandText = SQL;
-                dbCommand.Connection = dbFactory.CreateConnection(dbConnStrBuilder.ConnectionString); 
+                dbCommand.Connection = dbFactory.CreateConnection(_dbConnectionStringBuilder.ConnectionString); 
 
                 if (prms != null)
                 {
@@ -108,7 +114,7 @@ namespace SimpleDataAccess
             {                
                 dbDataAdapter.SelectCommand = dbFactory.CreateCommand();
                 dbDataAdapter.SelectCommand.CommandText = SQL;
-                dbDataAdapter.SelectCommand.Connection = dbFactory.CreateConnection(dbConnStrBuilder.ConnectionString); 
+                dbDataAdapter.SelectCommand.Connection = dbFactory.CreateConnection(_dbConnectionStringBuilder.ConnectionString); 
 
                 if (prms != null)
                 {
@@ -262,7 +268,7 @@ namespace SimpleDataAccess
             using (DbCommand dbCommand = dbFactory.CreateCommand())
             {
                 dbCommand.CommandText = SQL;
-                dbCommand.Connection = dbFactory.CreateConnection(dbConnStrBuilder.ConnectionString);
+                dbCommand.Connection = dbFactory.CreateConnection(_dbConnectionStringBuilder.ConnectionString);
 
                 if (prms != null)
                 {

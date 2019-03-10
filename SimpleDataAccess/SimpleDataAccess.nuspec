@@ -2,13 +2,13 @@
 <package >
   <metadata>
     <id>SimpleDataAccess</id>
-    <version>1.3.0</version>
+    <version>1.3.1</version>
     <title>Simple Data Access</title>
     <authors>Emre MUMCU</authors>
-    <owners>Emre MUMCU mumcu.net</owners>
-    <licenseUrl>http://mumcu.net</licenseUrl>
-    <projectUrl>http://mumcu.net</projectUrl>
-    <iconUrl>http://mumcu.net</iconUrl>
+    <owners>Emre MUMCU</owners>
+    <licenseUrl>http://mumcu.net/About/MIT</licenseUrl>
+    <projectUrl>https://github.com/emremumcu/SimpleDataAccess</projectUrl>
+    <iconUrl>http://mumcu.net/Content/icons/sda-icon.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Simple Data Access Layer</description>
     <releaseNotes>Initial Release.</releaseNotes>

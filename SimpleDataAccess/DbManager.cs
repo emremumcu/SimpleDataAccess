@@ -225,18 +225,18 @@ namespace SimpleDataAccess
 
         #region Insert
 
+        /// <summary>
+        /// This method is under development phase. Use @ your own riks :)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
         public void Insert<T>(T obj) where T : class, new()
         {
-            Table TableAttribute = typeof(T).GetCustomAttribute<Table>(false);
-
-            string SchemaName = TableAttribute.SchemaName;
-
-            string TableName = typeof(T).Name;
-
+            string tableName = TableName<T>();
 
             List<PropertyInfo> properties = typeof(T).GetProperties().ToList();
 
-            string SQL = $"SELECT { String.Join(",", properties.Select(p => p.Name).ToArray()) } FROM Person.{TableName}";
+            //string SQL = $"SELECT { String.Join(",", properties.Select(p => p.Name).ToArray()) } FROM Person.{TableName}";
 
             // class property kullanarak parametreleri oluşturma
 
@@ -248,11 +248,13 @@ namespace SimpleDataAccess
                 p.ParameterName = $"@{pi.Name}";
                 p.Value = pi.GetValue(obj);
 
+                prms.Add(p);
+
                 //Column col = pi.GetCustomAttribute<Column>(false);
                 //if (col != null) columnList.Add(col.Name);
             }
 
-            string SQLINSERT = $@"INSERT INTO {SchemaName}.{TableName} ({String.Join(",", properties.Select(p => p.Name).ToArray())}) VALUES (@{String.Join(",@", properties.Select(p => p.Name).ToArray())})";
+            string SQLINSERT = $@"INSERT INTO {tableName} ({String.Join(",", properties.Select(p => p.Name).ToArray())}) VALUES (@{String.Join(",@", properties.Select(p => p.Name).ToArray())})";
 
             ExecuteNonQuery(SQLINSERT, prms);
 

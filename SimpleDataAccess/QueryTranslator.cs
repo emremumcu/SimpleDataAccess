@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -252,11 +253,37 @@ namespace SimpleDataAccess
 
         protected override Expression VisitMember(MemberExpression m)
         {
+
+
             if (m.Expression != null && m.Expression.NodeType == ExpressionType.Parameter)
             {
                 sb.Append(m.Member.Name);
                 return m;
             }
+
+            if (m.Expression != null && m.Expression is ConstantExpression)
+            {
+                // Recurse down to see if we can simplify...
+                var expression = Visit(m.Expression);
+
+                object container = ((ConstantExpression)expression).Value;
+
+                var member = m.Member;
+
+                if (member is FieldInfo)
+                {
+                    object value = ((FieldInfo)member).GetValue(container);
+                    return Expression.Constant(value);
+                }
+                if (member is PropertyInfo)
+                {
+                    object value = ((PropertyInfo)member).GetValue(container, null);
+                    sb.Append(value);
+                    return Expression.Constant(value);
+                }
+            }
+
+            // return base.VisitMember(m);
 
             throw new NotSupportedException(string.Format("The member '{0}' is not supported", m.Member.Name));
         }
@@ -320,3 +347,38 @@ namespace SimpleDataAccess
         }
     }
 }
+
+
+/*
+ 
+    //https://stackoverflow.com/questions/4793981/converting-expressiont-bool-to-string
+     
+             static void Main(string[] args)
+        {
+            Expression<Func<Product, bool>> exp = (x) => (x.Id > 5 && x.Warranty != false);
+
+            string expBody = ((LambdaExpression)exp).Body.ToString();
+            // Gives: ((x.Id > 5) AndAlso (x.Warranty != False))
+
+            var paramName = exp.Parameters[0].Name;
+            var paramTypeName = exp.Parameters[0].Type.Name;
+
+            // You could easily add "OrElse" and others...
+            expBody = expBody.Replace(paramName + ".", paramTypeName + ".")
+                             .Replace("AndAlso", "&&");
+
+
+            Console.WriteLine(expBody);
+            // Output: ((Product.Id > 5) && (Product.Warranty != False))
+
+        }
+    }
+
+    public class Product
+    {
+        public int Id { get; set; }
+        public bool Warranty { get; set; }
+
+    }
+     
+     */

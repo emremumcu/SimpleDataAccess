@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>SimpleDataAccess</id>
-    <version>1.3.2</version>
+    <version>1.4.0</version>
     <title>Simple Data Access</title>
     <authors>Emre MUMCU</authors>
     <owners>Emre MUMCU</owners>
@@ -12,7 +12,10 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Simple Data Access Layer</description>
     <releaseNotes>
+      Stable release.      
       Bug fixes and performance improvements.
+      MS SQL Server Database Support.
+      OleDb, ODBC support.
     </releaseNotes>
     <copyright>Copyright 2019 Emre MUMCU</copyright>
     <tags>Simple DataAccess Layer</tags>

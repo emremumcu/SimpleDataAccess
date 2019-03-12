@@ -11,7 +11,9 @@
     <iconUrl>http://mumcu.net/Content/icons/sda-icon.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Simple Data Access Layer</description>
-    <releaseNotes>Initial Release.</releaseNotes>
+    <releaseNotes>
+      Bug fixes and performance improvements.
+    </releaseNotes>
     <copyright>Copyright 2019 Emre MUMCU</copyright>
     <tags>Simple DataAccess Layer</tags>
   </metadata>

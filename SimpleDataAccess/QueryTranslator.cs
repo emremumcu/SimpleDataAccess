@@ -264,21 +264,46 @@ namespace SimpleDataAccess
             if (m.Expression != null && m.Expression is ConstantExpression)
             {
                 // Recurse down to see if we can simplify...
-                var expression = Visit(m.Expression);
+                //var expression = Visit(m.Expression);
 
-                object container = ((ConstantExpression)expression).Value;
+                object container = ((ConstantExpression)m.Expression).Value;
 
                 var member = m.Member;
 
                 if (member is FieldInfo)
                 {
                     object value = ((FieldInfo)member).GetValue(container);
+
+                    Type ty = value.GetType();
+
+                    if(ty == typeof(string))
+                    {
+                        sb.Append($"'{value}'");
+                    }
+                    else
+                    {
+                        sb.Append(value);
+                    }
+
+                    
                     return Expression.Constant(value);
                 }
                 if (member is PropertyInfo)
                 {
                     object value = ((PropertyInfo)member).GetValue(container, null);
-                    sb.Append(value);
+
+                    Type ty = value.GetType(); 
+
+
+                    if (ty == typeof(string))
+                    {
+                        sb.Append($"'{value}'");
+                    }
+                    else
+                    {
+                        sb.Append(value);
+                    }
+
                     return Expression.Constant(value);
                 }
             }

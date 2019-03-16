@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>SimpleDataAccess</id>
-    <version>1.4.0</version>
+    <version>1.4.1</version>
     <title>Simple Data Access</title>
     <authors>Emre MUMCU</authors>
     <owners>Emre MUMCU</owners>
@@ -12,7 +12,8 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Simple Data Access Layer</description>
     <releaseNotes>
-      Stable release.      
+      Stable release. 
+      Generic Insert Added.
       Bug fixes and performance improvements.
       MS SQL Server Database Support.
       OleDb, ODBC support.

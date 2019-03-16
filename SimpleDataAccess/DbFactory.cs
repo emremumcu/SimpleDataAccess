@@ -9,7 +9,7 @@ namespace SimpleDataAccess
 {
     public enum DbProvider
     {
-        MSSqlServer, Oracle, IBMDB2, OleDb, Odbc
+        MSSqlServer, OleDb, Odbc//, Oracle, IBMDB2
     }
 
     internal class DbFactory

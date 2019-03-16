@@ -13,6 +13,8 @@ namespace SimpleDataAccess
     {
         private DbFactory dbFactory;
 
+        internal DbFactory GetDbFactory { get { return dbFactory; } }
+
         private DbConnectionStringBuilder _dbConnectionStringBuilder;
 
         public DbManager(DbProvider provider, string connectionString)
@@ -225,39 +227,37 @@ namespace SimpleDataAccess
 
         #region Insert
 
-        /// <summary>
-        /// This method is under development phase. Use @ your own riks :)
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="obj"></param>
+
         public void Insert<T>(T obj) where T : class, new()
         {
+            //Column col = pi.GetCustomAttribute<Column>(false);
+            //if (col != null) columnList.Add(col.Name);
+
             string tableName = TableName<T>();
 
-            List<PropertyInfo> properties = typeof(T).GetProperties().ToList();
+            IEnumerable<PropertyInfo> properties = typeof(T).GetProperties();
 
-            //string SQL = $"SELECT { String.Join(",", properties.Select(p => p.Name).ToArray()) } FROM Person.{TableName}";
+            IEnumerable<PropertyInfo> excludedProperties = from prop in properties
+                    from attr in prop.CustomAttributes
+                    where attr.AttributeType == typeof(Identity) || attr.AttributeType == typeof(Computed)
+                    select prop;
 
-            // class property kullanarak parametreleri oluşturma
+            List<PropertyInfo> insertableProperties = properties.Except(excludedProperties.ToList()).ToList();
 
-            List<DbParameter> prms = new List<DbParameter>();
+            List < DbParameter > prms = new List<DbParameter>();
 
-            foreach (PropertyInfo pi in properties)
+            foreach (PropertyInfo pi in insertableProperties)
             {
                 DbParameter p = dbFactory.CreateParameter();
                 p.ParameterName = $"@{pi.Name}";
-                p.Value = pi.GetValue(obj);
+                p.Value = pi.GetValue(obj) ?? DBNull.Value;
 
                 prms.Add(p);
-
-                //Column col = pi.GetCustomAttribute<Column>(false);
-                //if (col != null) columnList.Add(col.Name);
             }
 
-            string SQLINSERT = $@"INSERT INTO {tableName} ({String.Join(",", properties.Select(p => p.Name).ToArray())}) VALUES (@{String.Join(",@", properties.Select(p => p.Name).ToArray())})";
+            string SQLINSERT = $@"INSERT INTO {tableName} ({String.Join(", ", insertableProperties.Select(p => p.Name).ToArray())}) VALUES (@{String.Join(", @", insertableProperties.Select(p => p.Name).ToArray())})";
 
             ExecuteNonQuery(SQLINSERT, prms);
-
         }
 
         #endregion Insert

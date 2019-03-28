@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Data;
 using System.Linq.Expressions;
-using SimpleDataAccess.Attributes;
 using System.Reflection;
 using System.Linq;
+
+using SimpleDataAccess.DbAttributes;
 
 namespace SimpleDataAccess
 {
@@ -172,7 +173,7 @@ namespace SimpleDataAccess
 
         private string TableName<T>()
         {
-            Table TableAttribute = typeof(T).GetCustomAttribute<Table>(false);
+            TableAttribute TableAttribute = typeof(T).GetCustomAttribute<TableAttribute>(false);
 
             string tableFullName = string.Empty;
 

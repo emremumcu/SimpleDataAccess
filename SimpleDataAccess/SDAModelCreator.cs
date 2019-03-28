@@ -1,4 +1,6 @@
-﻿using System;
+﻿using SimpleDataAccess.DbAttributes;
+using SimpleDataAccess.SDAModels;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -12,44 +14,8 @@ namespace SimpleDataAccess
     /// <summary>
     /// Creates a Model class for SimpleDataAccess framework
     /// </summary>
-    public class SDAModelCreator
+    public partial class SDAModelCreator
     {
-        private class Table
-        {
-            public string TABLE_CATALOG { get; set; }
-            public string TABLE_SCHEMA { get; set; }
-            public string TABLE_NAME { get; set; }
-            public string TABLE_TYPE { get; set; }
-        }
-
-        private class Column
-        {
-            public string TABLE_CATALOG { get; set; }
-            public string TABLE_SCHEMA { get; set; }
-            public string TABLE_NAME { get; set; }
-            public string TABLE_TYPE { get; set; }
-            public string COLUMN_NAME { get; set; }
-            public int IS_IDENTITY { get; set; }
-            public int IS_COMPUTED { get; set; }
-            public int ORDINAL_POSITION { get; set; }
-            public string COLUMN_DEFAULT { get; set; }
-            public string IS_NULLABLE { get; set; }
-            public string DATA_TYPE { get; set; }
-            public int CHARACTER_MAXIMUM_LENGTH { get; set; }
-            public int CHARACTER_OCTET_LENGTH { get; set; }
-            public byte NUMERIC_PRECISION { get; set; }
-            public Int16 NUMERIC_PRECISION_RADIX { get; set; }
-            public Int32 NUMERIC_SCALE { get; set; }
-            public Int16 DATETIME_PRECISION { get; set; }
-            public string CHARACTER_SET_CATALOG { get; set; }
-            public string CHARACTER_SET_SCHEMA { get; set; }
-            public string CHARACTER_SET_NAME { get; set; }
-            public string COLLATION_CATALOG { get; set; }
-            public bool IS_SPARSE { get; set; }
-            public bool IS_COLUMN_SET { get; set; }
-            public bool IS_FILESTREAM { get; set; }
-        }
-
         private DbManager _dbManager;
 
         public SDAModelCreator(DbManager dbManager)
@@ -75,9 +41,111 @@ namespace SimpleDataAccess
                 return reader;
             }
         }
-
-        private List<Table> GetTableList(string SchemaName)
+        
+        private string AttributeMapper(DbColumn col)
         {
+            List<string> attribs = new List<string>();
+
+            if (col.IS_NULLABLE.Trim() == "NO") attribs.Add(nameof(NotNull));
+            if (col.IS_IDENTITY == 1) attribs.Add(nameof(Identity));
+            if (col.IS_COMPUTED == 1) attribs.Add(nameof(Computed));
+
+            StringBuilder sb = new StringBuilder();
+
+            if (attribs.Count > 0)
+            {
+                string attr = string.Join(", ", attribs.ToArray());
+                return $"\t[{attr}]{Environment.NewLine}";
+            }
+            else
+                return string.Empty;
+        }
+
+        private List<DbColumn> colList;
+
+        public string CreateModel(string TableName, string SchemaName = "dbo")
+        {
+            using (DbConnection conn = _dbManager.CreateConnection())
+            {
+                colList = GetColumnList(TableName, SchemaName);
+
+                StringBuilder @class = new StringBuilder();
+
+                @class.Append("using System;");
+                @class.Append(Environment.NewLine);
+                @class.Append("using SimpleDataAccess.Attributes;");
+                @class.Append(Environment.NewLine);
+                @class.Append("using System.Data.SqlTypes;");
+                @class.Append(Environment.NewLine);
+                @class.Append(Environment.NewLine);
+
+                @class.Append($"[Table(SchemaName = \"{SchemaName}\", TableName = \"{TableName}\")]");
+                @class.Append(Environment.NewLine);
+                @class.Append($"public class {TableName} {{{Environment.NewLine}");
+
+                foreach (DbColumn c in colList)
+                {
+                    @class.Append(AttributeMapper(c));
+
+                    @class.Append("\t");
+                    @class.Append("public ");
+                    @class.Append($"{ ConvertSqlServerFormatToCSharp(c.DATA_TYPE, c.IS_NULLABLE.Trim()=="YES") } ");
+                    @class.Append($"{ c.COLUMN_NAME } ");
+                    @class.Append("{ get; set; }");
+                    @class.Append(Environment.NewLine);
+                }
+
+                @class.Append($"}}");
+
+                return @class.ToString();
+            }
+        }
+
+        private readonly string[] SqlServerTypes = { "bigint", "binary", "bit", "char", "date", "datetime", "datetime2", "datetimeoffset", "decimal", "filestream", "float", "geography", "geometry", "hierarchyid", "image", "int", "money", "nchar", "ntext", "numeric", "nvarchar", "real", "rowversion", "smalldatetime", "smallint", "smallmoney", "sql_variant", "text", "time", "timestamp", "tinyint", "uniqueidentifier", "varbinary", "varchar", "xml" };
+        private readonly string[] CSharpTypes = { "long", "byte[]", "bool", "char", "DateTime", "DateTime", "DateTime", "DateTimeOffset", "decimal", "byte[]", "double", "Microsoft.SqlServer.Types.SqlGeography", "Microsoft.SqlServer.Types.SqlGeometry", "Microsoft.SqlServer.Types.SqlHierarchyId", "byte[]", "int", "decimal", "string", "string", "decimal", "string", "Single", "byte[]", "DateTime", "short", "decimal", "object", "string", "TimeSpan", "byte[]", "byte", "Guid", "bite[]", "string", "string" };
+
+        private string ConvertSqlServerFormatToCSharp(string typeName, bool nullable)
+        {
+            var index = Array.IndexOf(SqlServerTypes, typeName);            
+
+            string foundName = index > -1 ? CSharpTypes[index] : "object";
+
+            if (nullable && (foundName != "string" && foundName != "object")) foundName += "?";
+
+            return foundName;
+        }
+
+        private string ConvertCSharpFormatToSqlServer(string typeName)
+        {
+            var index = Array.IndexOf(CSharpTypes, typeName);
+
+            return index > -1
+                ? SqlServerTypes[index]
+                : null;
+        }
+        
+    }
+
+
+
+    /// <summary>
+    /// Database Server Metadata
+    /// </summary>
+    public partial class SDAModelCreator
+    {
+        public List<DbCatalog> GetDatabaseList()
+        {
+            List<DbCatalog> dbs = _dbManager.SelectAll<DbCatalog>();
+            return dbs;
+        }
+
+        public List<DbTable> GetTableList(string SchemaName = "dbo")
+        {
+            // 1-->
+            //List<Table> tbs = _dbManager.SelectAll<Table>();
+            //return tbs;
+
+            // 2-->
             //using (DbConnection conn = _dbManager.CreateConnection())
             //{
             //    conn.Open();
@@ -110,28 +178,15 @@ namespace SimpleDataAccess
 
             List<DbParameter> prms = new List<DbParameter> { p };
 
-            DbDataReader reader =  CreateReader(SQL, prms);
+            DbDataReader reader = CreateReader(SQL, prms);
 
-            List<Table> tableList = new GenericDataBinder<Table>().CreateList(reader);
+            List<DbTable> tableList = new GenericDataBinder<DbTable>().CreateList(reader);
 
             return tableList;
         }
 
-        private List<Column> GetColumnList(string TableName, string SchemaName)
+        public List<DbColumn> GetColumnList(string SchemaName, string TableName)
         {
-            //using (DbConnection conn = _dbManager.CreateConnection())
-            //{
-            //    conn.Open();
-
-            //    // table_catalog table_schema table_name table_type
-            //    string[] columnRestrictions = new string[4] { null, SchemaName, TableName, null };
-            //    DataTable columnList = conn.GetSchema("Columns", columnRestrictions);
-
-            //    conn.Close();
-
-            //    return columnList;
-            //}
-
             string SQL = @"
                 SELECT 
                     T.TABLE_CATALOG, 
@@ -180,98 +235,11 @@ namespace SimpleDataAccess
 
             DbDataReader reader = CreateReader(SQL, prms);
 
-            List<Column> tableList = new GenericDataBinder<Column>().CreateList(reader);
+            List<DbColumn> tableList = new GenericDataBinder<DbColumn>().CreateList(reader);
 
             return tableList;
         }
-               
-        private string AttributeMapper(Column col)
-        {
-            List<string> attribs = new List<string>();
-
-            if (col.IS_NULLABLE.Trim() == "NO") attribs.Add(nameof(Attributes.NotNull));
-            if (col.IS_IDENTITY == 1) attribs.Add(nameof(Attributes.Identity));
-            if (col.IS_COMPUTED == 1) attribs.Add(nameof(Attributes.Computed));
-
-            StringBuilder sb = new StringBuilder();
-
-            if (attribs.Count > 0)
-            {
-                string attr = string.Join(", ", attribs.ToArray());
-                return $"\t[{attr}]{Environment.NewLine}";
-            }
-            else
-                return string.Empty;
-        }
-
-        private List<Column> colList;
-
-        public string CreateModel(string TableName, string SchemaName = "dbo")
-        {
-            using (DbConnection conn = _dbManager.CreateConnection())
-            {
-                colList = GetColumnList(TableName, SchemaName);
-
-                StringBuilder @class = new StringBuilder();
-
-                @class.Append("using System;");
-                @class.Append(Environment.NewLine);
-                @class.Append("using SimpleDataAccess.Attributes;");
-                @class.Append(Environment.NewLine);
-                @class.Append("using System.Data.SqlTypes;");
-                @class.Append(Environment.NewLine);
-                @class.Append(Environment.NewLine);
-
-                @class.Append($"[Table(SchemaName = \"{SchemaName}\", TableName = \"{TableName}\")]");
-                @class.Append(Environment.NewLine);
-                @class.Append($"public class {TableName} {{{Environment.NewLine}");
-
-                foreach (Column c in colList)
-                {
-                    @class.Append(AttributeMapper(c));
-
-                    @class.Append("\t");
-                    @class.Append("public ");
-                    @class.Append($"{ ConvertSqlServerFormatToCSharp(c.DATA_TYPE, c.IS_NULLABLE.Trim()=="YES") } ");
-                    @class.Append($"{ c.COLUMN_NAME } ");
-                    @class.Append("{ get; set; }");
-                    @class.Append(Environment.NewLine);
-                }
-
-                @class.Append($"}}");
-
-                return @class.ToString();
-            }
-        }
-
-        private readonly string[] SqlServerTypes = { "bigint", "binary", "bit", "char", "date", "datetime", "datetime2", "datetimeoffset", "decimal", "filestream", "float", "geography", "geometry", "hierarchyid", "image", "int", "money", "nchar", "ntext", "numeric", "nvarchar", "real", "rowversion", "smalldatetime", "smallint", "smallmoney", "sql_variant", "text", "time", "timestamp", "tinyint", "uniqueidentifier", "varbinary", "varchar", "xml" };
-        private readonly string[] CSharpTypes = { "long", "byte[]", "bool", "char", "DateTime", "DateTime", "DateTime", "DateTimeOffset", "decimal", "byte[]", "double", "Microsoft.SqlServer.Types.SqlGeography", "Microsoft.SqlServer.Types.SqlGeometry", "Microsoft.SqlServer.Types.SqlHierarchyId", "byte[]", "int", "decimal", "string", "string", "decimal", "string", "Single", "byte[]", "DateTime", "short", "decimal", "object", "string", "TimeSpan", "byte[]", "byte", "Guid", "bite[]", "string", "string" };
-
-        private string ConvertSqlServerFormatToCSharp(string typeName, bool nullable)
-        {
-            var index = Array.IndexOf(SqlServerTypes, typeName);            
-
-            string foundName = index > -1 ? CSharpTypes[index] : "object";
-
-            if (nullable && (foundName != "string" && foundName != "object")) foundName += "?";
-
-            return foundName;
-        }
-
-        private string ConvertCSharpFormatToSqlServer(string typeName)
-        {
-            var index = Array.IndexOf(CSharpTypes, typeName);
-
-            return index > -1
-                ? SqlServerTypes[index]
-                : null;
-        }
-
-
-
-
-
-
-
     }
+
+
 }

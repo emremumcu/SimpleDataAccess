@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>SimpleDataAccess</id>
-    <version>1.4.1</version>
+    <version>2.0.0</version>
     <title>Simple Data Access</title>
     <authors>Emre MUMCU</authors>
     <owners>Emre MUMCU</owners>
@@ -12,11 +12,8 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Simple Data Access Layer</description>
     <releaseNotes>
-      Stable release. 
-      Generic Insert Added.
-      Bug fixes and performance improvements.
-      MS SQL Server Database Support.
-      OleDb, ODBC support.
+      Not compatible with 1.x.x
+      Minor changes will be required if you migrate from 1.x.x
     </releaseNotes>
     <copyright>Copyright 2019 Emre MUMCU</copyright>
     <tags>Simple DataAccess Layer</tags>

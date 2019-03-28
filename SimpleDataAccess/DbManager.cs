@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Linq;
 
 using SimpleDataAccess.DbAttributes;
+using System.Collections.Concurrent;
 
 namespace SimpleDataAccess
 {
@@ -149,7 +150,10 @@ namespace SimpleDataAccess
 
         #region EntityBinders
 
-
+        public enum SortOrder
+        {
+            Ascending, Descending, Default
+        }
 
         private DbDataReader CreateReader(string SQL, List<DbParameter> prms = null)
         {
@@ -194,11 +198,19 @@ namespace SimpleDataAccess
             return tableFullName;
         }
 
-        public List<T> SelectAll<T>() where T : class, new()
+        public List<T> SelectAll<T>(Expression<Func<T, object>> OrderBy = null, SortOrder sort = SortOrder.Default) where T : class, new()
         {
             List<PropertyInfo> properties = typeof(T).GetProperties().ToList();
 
             string SQL = $"SELECT { String.Join(",", properties.Select(p => p.Name).ToArray()) } FROM { TableName<T>() }";
+
+            if(OrderBy != null)
+            {
+                string orderBy = new QueryTranslator().Translate(OrderBy);
+                string sortOrder = (sort == SortOrder.Ascending) ? ("ASC") : (sort == SortOrder.Descending) ? ("DESC"): ("");
+
+                SQL += $" ORDER BY {orderBy} {sortOrder}";
+            }
 
             DbDataReader reader = CreateReader(SQL);
 
@@ -207,13 +219,21 @@ namespace SimpleDataAccess
             return list;
         }
 
-        public List<T> Select<T>(Expression<Func<T, object>> filter) where T : class, new()
+        public List<T> Select<T>(Expression<Func<T, object>> filter, Expression<Func<T, object>> OrderBy = null, SortOrder sort = SortOrder.Default) where T : class, new()
         {
             List<PropertyInfo> properties = typeof(T).GetProperties().ToList();
 
             string sqlFilter = new QueryTranslator().Translate(filter);
 
             string SQL = $"SELECT { String.Join(",", properties.Select(p => p.Name).ToArray()) } FROM { TableName<T>() }  WHERE {sqlFilter}";
+
+            if (OrderBy != null)
+            {
+                string orderBy = new QueryTranslator().Translate(OrderBy);
+                string sortOrder = (sort == SortOrder.Ascending) ? ("ASC") : (sort == SortOrder.Descending) ? ("DESC") : ("");
+
+                SQL += $" ORDER BY {orderBy} {sortOrder}";
+            }
 
             DbDataReader reader = CreateReader(SQL);
 
@@ -231,9 +251,6 @@ namespace SimpleDataAccess
 
         public void Insert<T>(T obj) where T : class, new()
         {
-            //Column col = pi.GetCustomAttribute<Column>(false);
-            //if (col != null) columnList.Add(col.Name);
-
             string tableName = TableName<T>();
 
             IEnumerable<PropertyInfo> properties = typeof(T).GetProperties();
